@@ -10,11 +10,15 @@ import (
 )
 
 func (c *Client) connect() error {
-	u := url.URL{Scheme: "ws", Host: c.Endpoint, Path: "/api/ws"}
+	u, err := url.Parse(c.Endpoint)
+	if err != nil {
+		return err
+	}
+	u.Scheme = "ws"
+	u.Path = "/api/ws"
 	query := u.Query()
 	query.Add("app", c.AppID)
 	u.RawQuery = query.Encode()
-	var err error
 	c.websocketConnection, _, err = websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		return err

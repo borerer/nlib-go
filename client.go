@@ -1,6 +1,7 @@
 package nlibgo
 
 import (
+	"io"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -10,7 +11,7 @@ type Client struct {
 	Endpoint string
 	AppID    string
 
-	requestBuilder      *RequestBuilder
+	requestBuilder      *APIRequestBuilder
 	registeredFunctions sync.Map
 
 	websocketConnection *websocket.Conn
@@ -27,47 +28,43 @@ func NewClient(endpoint string, appID string) *Client {
 	return c
 }
 
-func (c *Client) LogMessage(message string) error {
-	req, err := c.requestBuilder.AddLogs(message)
-	if err != nil {
-		return err
-	}
-	err = DoRequest(req, nil)
-	if err != nil {
-		return err
-	}
-	return nil
+const (
+	Debug = "debug"
+	Info  = "info"
+	Warn  = "warn"
+	Error = "error"
+	Fatal = "fatal"
+)
+
+func (c *Client) Debug(message string) error {
+	return c.log(Debug, message, nil)
 }
 
-type RegisterFunctionRequest struct {
-	FuncName string `json:"func_name"`
-	Endpoint string `json:"endpoint"`
+func (c *Client) Info(message string) error {
+	return c.log(Info, message, nil)
 }
 
-type RegisterFunctionResponse struct {
-	ID string `json:"id"`
+func (c *Client) Warn(message string) error {
+	return c.log(Warn, message, nil)
 }
 
-type RegisterFunctionOptions struct {
-	FuncName string
-	Endpoint string
+func (c *Client) Error(message string) error {
+	return c.log(Error, message, nil)
 }
 
-type NLIBFunc func(string) string
+func (c *Client) Fatal(message string) error {
+	return c.log(Fatal, message, nil)
+}
+
+func (c *Client) GetFile(filename string) (io.ReadCloser, error) {
+	return c.getFile(filename)
+}
+
+func (c *Client) PutFile(filename string, reader io.Reader) error {
+	return c.putFile(filename, reader)
+}
 
 func (c *Client) RegisterFunction(f NLIBFunc, opt RegisterFunctionOptions) error {
 	c.registeredFunctions.Store(opt.FuncName, f)
-	// reqBody := &RegisterFunctionRequest{
-	// 	ID: options.ID,
-	// }
-	// req, err := c.requestBuilder.RegisterFunction(reqBody)
-	// if err != nil {
-	// 	return err
-	// }
-	// var res RegisterFunctionResponse
-	// err = DoRequest(req, &res)
-	// if err != nil {
-	// 	return err
-	// }
 	return nil
 }
