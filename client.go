@@ -64,6 +64,14 @@ func (c *Client) PutFile(filename string, reader io.Reader) error {
 	return c.putFile(filename, reader)
 }
 
+func (c *Client) GetKey(key string) (string, error) {
+	return c.getKey(key)
+}
+
+func (c *Client) SetKey(key string, value string) error {
+	return c.setKey(key, value)
+}
+
 func (c *Client) RegisterFunction(f NLIBFunc, opt RegisterFunctionOptions) error {
 	c.registeredFunctions.Store(opt.FuncName, f)
 	return nil

@@ -49,7 +49,7 @@ func TestPutFile(t *testing.T) {
 }
 
 func TestRegisterFunction(t *testing.T) {
-	client := NewClient("localhost:9502", "nlib-go-test")
+	client := NewClient("http://localhost:9502", "nlib-go-test")
 	client.RegisterFunction(func(in string) string {
 		return "pong"
 	}, RegisterFunctionOptions{
@@ -58,8 +58,25 @@ func TestRegisterFunction(t *testing.T) {
 	time.Sleep(time.Second * 100)
 }
 
+func TestGetKey(t *testing.T) {
+	client := NewClient("http://localhost:9502", "nlib-go-test")
+	value, err := client.GetKey("some_key")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(value)
+}
+
+func TestSetKey(t *testing.T) {
+	client := NewClient("http://localhost:9502", "nlib-go-test")
+	err := client.SetKey("some_key", "some_value")
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestRegisterFunction_WithParams(t *testing.T) {
-	client := NewClient("localhost:9502", "nlib-go-test")
+	client := NewClient("http://localhost:9502", "nlib-go-test")
 	client.RegisterFunction(func(in string) string {
 		return "hello " + in
 	}, RegisterFunctionOptions{
