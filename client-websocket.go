@@ -14,11 +14,16 @@ func (c *Client) connect() error {
 	if err != nil {
 		return err
 	}
-	u.Scheme = "ws"
+	if u.Scheme == "https" {
+		u.Scheme = "wss"
+	} else {
+		u.Scheme = "ws"
+	}
 	u.Path = "/api/ws"
 	query := u.Query()
 	query.Add("app", c.AppID)
 	u.RawQuery = query.Encode()
+	println(u.String())
 	c.websocketConnection, _, err = websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		return err

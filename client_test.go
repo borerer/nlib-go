@@ -2,13 +2,18 @@ package nlibgo
 
 import (
 	"io"
+	"os"
 	"strings"
 	"testing"
 	"time"
 )
 
+func getClient() *Client {
+	return NewClient(os.Getenv("NLIB_SERVER"), "nlib-go-test")
+}
+
 func TestLogs(t *testing.T) {
-	client := NewClient("http://localhost:9502", "nlib-go-test")
+	client := getClient()
 	if err := client.Debug("Debug from nlib-go"); err != nil {
 		t.Fatal(err)
 	}
@@ -27,7 +32,7 @@ func TestLogs(t *testing.T) {
 }
 
 func TestGetFile(t *testing.T) {
-	client := NewClient("http://localhost:9502", "nlib-go-test")
+	client := getClient()
 	res, err := client.GetFile("abc.txt")
 	if err != nil {
 		t.Fatal(err)
@@ -41,7 +46,7 @@ func TestGetFile(t *testing.T) {
 }
 
 func TestPutFile(t *testing.T) {
-	client := NewClient("http://localhost:9502", "nlib-go-test")
+	client := getClient()
 	err := client.PutFile("abc.txt", strings.NewReader("hi file!"))
 	if err != nil {
 		t.Fatal(err)
@@ -49,7 +54,7 @@ func TestPutFile(t *testing.T) {
 }
 
 func TestRegisterFunction(t *testing.T) {
-	client := NewClient("http://localhost:9502", "nlib-go-test")
+	client := getClient()
 	client.RegisterFunction(func(in string) string {
 		return "pong"
 	}, RegisterFunctionOptions{
@@ -59,7 +64,7 @@ func TestRegisterFunction(t *testing.T) {
 }
 
 func TestGetKey(t *testing.T) {
-	client := NewClient("http://localhost:9502", "nlib-go-test")
+	client := getClient()
 	value, err := client.GetKey("some_key")
 	if err != nil {
 		t.Fatal(err)
@@ -68,7 +73,7 @@ func TestGetKey(t *testing.T) {
 }
 
 func TestSetKey(t *testing.T) {
-	client := NewClient("http://localhost:9502", "nlib-go-test")
+	client := getClient()
 	err := client.SetKey("some_key", "some_value")
 	if err != nil {
 		t.Fatal(err)
@@ -76,7 +81,7 @@ func TestSetKey(t *testing.T) {
 }
 
 func TestRegisterFunction_WithParams(t *testing.T) {
-	client := NewClient("http://localhost:9502", "nlib-go-test")
+	client := getClient()
 	client.RegisterFunction(func(in string) string {
 		return "hello " + in
 	}, RegisterFunctionOptions{
