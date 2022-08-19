@@ -23,7 +23,6 @@ func (c *Client) connect() error {
 	query := u.Query()
 	query.Add("app", c.AppID)
 	u.RawQuery = query.Encode()
-	println(u.String())
 	c.websocketConnection, _, err = websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		return err
