@@ -5,4 +5,4 @@ type RegisterFunctionOptions struct {
 	Endpoint string
 }
 
-type NLIBFunc func(map[string]interface{}) map[string]interface{}
+type NLIBFunc func(map[string]interface{}) interface{}

@@ -72,16 +72,16 @@ func TestSetKey(t *testing.T) {
 
 func TestRegisterFunction(t *testing.T) {
 	client := getClient()
-	client.RegisterFunction("ping", func(in map[string]interface{}) map[string]interface{} {
-		return map[string]interface{}{"message": "pong"}
+	client.RegisterFunction("ping", func(in map[string]interface{}) interface{} {
+		return "pong"
 	})
 	time.Sleep(time.Second * 100)
 }
 
 func TestRegisterFunction_WithParams(t *testing.T) {
 	client := getClient()
-	client.RegisterFunction("hi", func(in map[string]interface{}) map[string]interface{} {
-		return map[string]interface{}{"message": "hello " + in["name"].(string)}
+	client.RegisterFunction("hi", func(in map[string]interface{}) interface{} {
+		return "hello " + in["name"].(string)
 	})
 	time.Sleep(time.Second * 100)
 }
