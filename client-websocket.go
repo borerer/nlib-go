@@ -1,6 +1,7 @@
 package nlibgo
 
 import (
+	"fmt"
 	"net/url"
 	"time"
 
@@ -19,10 +20,7 @@ func (c *Client) connect() error {
 	} else {
 		u.Scheme = "ws"
 	}
-	u.Path = "/api/ws"
-	query := u.Query()
-	query.Add("app", c.AppID)
-	u.RawQuery = query.Encode()
+	u.Path = fmt.Sprintf("/api/app/%s/ws", c.AppID)
 	c.websocketConnection, _, err = websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		return err
@@ -66,7 +64,13 @@ func (c *Client) handleWebSocketRequests(message *WebSocketMessage) error {
 	return nil
 }
 
+func (c *Client) handleClose(code int, text string) error {
+	println("disconnected", code, text)
+	return nil
+}
+
 func (c *Client) listenWebSocketMessages() error {
+	c.websocketConnection.SetCloseHandler(c.handleClose)
 	for {
 		var message WebSocketMessage
 		err := c.websocketConnection.ReadJSON(&message)

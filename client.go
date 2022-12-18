@@ -3,6 +3,7 @@ package nlibgo
 import (
 	"io"
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -23,8 +24,21 @@ func NewClient(endpoint string, appID string) *Client {
 		AppID:          appID,
 		requestBuilder: NewRequestBuilder(endpoint, appID),
 	}
-	Must(c.connect())
-	go c.listenWebSocketMessages()
+	go func() {
+		for {
+			err := c.connect()
+			if err != nil {
+				println(err.Error())
+				time.Sleep(time.Second)
+				continue
+			}
+			err = c.listenWebSocketMessages()
+			if err != nil {
+				println(err.Error())
+				time.Sleep(time.Second)
+			}
+		}
+	}()
 	return c
 }
 
@@ -72,7 +86,7 @@ func (c *Client) SetKey(key string, value string) error {
 	return c.setKey(key, value)
 }
 
-func (c *Client) RegisterFunction(f NLIBFunc, opt RegisterFunctionOptions) error {
-	c.registeredFunctions.Store(opt.FuncName, f)
+func (c *Client) RegisterFunction(funcName string, f NLIBFunc, opts ...RegisterFunctionOptions) error {
+	c.registeredFunctions.Store(funcName, f)
 	return nil
 }

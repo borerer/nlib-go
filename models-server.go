@@ -7,13 +7,13 @@ type AddLogsRequest struct {
 }
 
 type WebSocketCallFunctionReq struct {
-	FuncName string `json:"func_name" mapstructure:"func_name"`
-	Params   string `json:"params" mapstructure:"params"`
+	FuncName string                 `json:"func_name" mapstructure:"func_name"`
+	Params   map[string]interface{} `json:"params" mapstructure:"params"`
 }
 
 type WebSocketCallFunctionRes struct {
-	FuncName string `json:"func_name" mapstructure:"func_name"`
-	Response string `json:"response" mapstructure:"response"`
+	FuncName string                 `json:"func_name" mapstructure:"func_name"`
+	Response map[string]interface{} `json:"response" mapstructure:"response"`
 }
 
 type WebSocketMessage struct {

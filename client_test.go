@@ -9,7 +9,7 @@ import (
 )
 
 func getClient() *Client {
-	return NewClient(os.Getenv("NLIB_SERVER"), "nlib-go-test")
+	return NewClient(os.Getenv("NLIB_SERVER"), "nlib-go")
 }
 
 func TestLogs(t *testing.T) {
@@ -53,16 +53,6 @@ func TestPutFile(t *testing.T) {
 	}
 }
 
-func TestRegisterFunction(t *testing.T) {
-	client := getClient()
-	client.RegisterFunction(func(in string) string {
-		return "pong"
-	}, RegisterFunctionOptions{
-		FuncName: "ping",
-	})
-	time.Sleep(time.Second * 100)
-}
-
 func TestGetKey(t *testing.T) {
 	client := getClient()
 	value, err := client.GetKey("some_key")
@@ -80,12 +70,18 @@ func TestSetKey(t *testing.T) {
 	}
 }
 
+func TestRegisterFunction(t *testing.T) {
+	client := getClient()
+	client.RegisterFunction("ping", func(in map[string]interface{}) map[string]interface{} {
+		return map[string]interface{}{"message": "pong"}
+	})
+	time.Sleep(time.Second * 100)
+}
+
 func TestRegisterFunction_WithParams(t *testing.T) {
 	client := getClient()
-	client.RegisterFunction(func(in string) string {
-		return "hello " + in
-	}, RegisterFunctionOptions{
-		FuncName: "hi",
+	client.RegisterFunction("hi", func(in map[string]interface{}) map[string]interface{} {
+		return map[string]interface{}{"message": "hello " + in["name"].(string)}
 	})
 	time.Sleep(time.Second * 100)
 }
