@@ -1,6 +1,7 @@
 package nlibgo
 
 import (
+	"encoding/json"
 	"io"
 	"sync"
 	"time"
@@ -50,24 +51,24 @@ const (
 	Fatal = "fatal"
 )
 
-func (c *Client) Debug(message string) error {
-	return c.log(Debug, message, nil)
+func (c *Client) Debug(message string, args ...interface{}) error {
+	return c.log(Debug, message, args...)
 }
 
-func (c *Client) Info(message string) error {
-	return c.log(Info, message, nil)
+func (c *Client) Info(message string, args ...interface{}) error {
+	return c.log(Info, message, args...)
 }
 
-func (c *Client) Warn(message string) error {
-	return c.log(Warn, message, nil)
+func (c *Client) Warn(message string, args ...interface{}) error {
+	return c.log(Warn, message, args...)
 }
 
-func (c *Client) Error(message string) error {
-	return c.log(Error, message, nil)
+func (c *Client) Error(message string, args ...interface{}) error {
+	return c.log(Error, message, args...)
 }
 
-func (c *Client) Fatal(message string) error {
-	return c.log(Fatal, message, nil)
+func (c *Client) Fatal(message string, args ...interface{}) error {
+	return c.log(Fatal, message, args...)
 }
 
 func (c *Client) GetFile(filename string) (io.ReadCloser, error) {
@@ -84,6 +85,18 @@ func (c *Client) GetKey(key string) (string, error) {
 
 func (c *Client) SetKey(key string, value string) error {
 	return c.setKey(key, value)
+}
+
+func (c *Client) GetJSON(key string, res interface{}) error {
+	val, err := c.getKey(key)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal([]byte(val), res)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (c *Client) RegisterFunction(funcName string, f NLIBFunc, opts ...RegisterFunctionOptions) error {

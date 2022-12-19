@@ -2,33 +2,14 @@ package nlibgo
 
 import (
 	"io"
-	"os"
 	"strings"
 	"testing"
 	"time"
 )
 
 func getClient() *Client {
-	return NewClient(os.Getenv("NLIB_SERVER"), "nlib-go")
-}
-
-func TestLogs(t *testing.T) {
-	client := getClient()
-	if err := client.Debug("Debug from nlib-go"); err != nil {
-		t.Fatal(err)
-	}
-	if err := client.Info("Info from nlib-go"); err != nil {
-		t.Fatal(err)
-	}
-	if err := client.Warn("Warn from nlib-go"); err != nil {
-		t.Fatal(err)
-	}
-	if err := client.Error("Error from nlib-go"); err != nil {
-		t.Fatal(err)
-	}
-	if err := client.Fatal("Fatal from nlib-go"); err != nil {
-		t.Fatal(err)
-	}
+	return NewClient("https://nlib.home.iloahz.com", "nlib-go")
+	// return NewClient(os.Getenv("NLIB_SERVER"), "nlib-go")
 }
 
 func TestGetFile(t *testing.T) {

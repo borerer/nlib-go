@@ -1,6 +1,7 @@
 package nlibgo
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -47,9 +48,9 @@ func (r *APIRequestBuilder) buildEndpoints() {
 	r.EndpointGetFile = fmt.Sprintf("%s/api/file/get", r.Endpoint)
 	r.EndpointPutFile = fmt.Sprintf("%s/api/file/put", r.Endpoint)
 	r.EndpointRegisterFunction = fmt.Sprintf("%s/api/function/register", r.Endpoint)
-	r.EndpointAddLogs = fmt.Sprintf("%s/api/logs", r.Endpoint)
-	r.EndpointGetKey = fmt.Sprintf("%s/api/kv/get", r.Endpoint)
-	r.EndpointSetKey = fmt.Sprintf("%s/api/kv/set", r.Endpoint)
+	r.EndpointAddLogs = fmt.Sprintf("%s/api/app/logs/log", r.Endpoint)
+	r.EndpointGetKey = fmt.Sprintf("%s/api/app/kv/get", r.Endpoint)
+	r.EndpointSetKey = fmt.Sprintf("%s/api/app/kv/set", r.Endpoint)
 }
 
 func (b *APIRequestBuilder) AddLogs(level string, message string, details interface{}) (*http.Request, error) {
@@ -58,7 +59,9 @@ func (b *APIRequestBuilder) AddLogs(level string, message string, details interf
 		Message: message,
 		Details: details,
 	}
-	return NewHTTPRequestBuilder().Method("POST").BaseURL(b.EndpointAddLogs).Query("app", b.AppID).Body(body).Build()
+	buf, _ := json.Marshal(body)
+	println(string(buf))
+	return NewHTTPRequestBuilder().Method("POST").BaseURL(b.EndpointAddLogs).Body(body).Build()
 }
 
 func (b *APIRequestBuilder) GetFile(filename string) (*http.Request, error) {
@@ -70,9 +73,9 @@ func (b *APIRequestBuilder) PutFile(filename string, reader io.Reader) (*http.Re
 }
 
 func (b *APIRequestBuilder) GetKey(key string) (*http.Request, error) {
-	return NewHTTPRequestBuilder().Method("GET").BaseURL(b.EndpointGetKey).Query("app", b.AppID).Query("key", key).Build()
+	return NewHTTPRequestBuilder().Method("GET").BaseURL(b.EndpointGetKey).Query("key", key).Build()
 }
 
 func (b *APIRequestBuilder) SetKey(key string, value string) (*http.Request, error) {
-	return NewHTTPRequestBuilder().Method("PUT").BaseURL(b.EndpointSetKey).Query("app", b.AppID).Query("key", key).Query("value", value).Build()
+	return NewHTTPRequestBuilder().Method("GET").BaseURL(b.EndpointSetKey).Query("key", key).Query("value", value).Build()
 }
