@@ -13,14 +13,23 @@ var (
 	ErrFunctionNotFound = errors.New("function not found")
 )
 
+// expose to nlib-go users
+type SimpleFunctionIn = nlibshared.SimpleFunctionIn
+type SimpleFunctionOut = nlibshared.SimpleFunctionOut
+type SimpleFunction = nlibshared.SimpleFunction
+
+type HARFunctionIn = nlibshared.HARFunctionIn
+type HARFunctionOut = nlibshared.HARFunctionOut
+type HARFunction = nlibshared.HARFunction
+
 func (c *Client) RegisterFunction(name string, f interface{}) error {
 	req := &nlibshared.PayloadRegisterFunctionRequest{
 		Name: name,
 	}
 	switch f.(type) {
-	case nlibshared.SimpleFunction:
+	case SimpleFunction:
 		req.UseHAR = false
-	case nlibshared.HARFunction:
+	case HARFunction:
 		req.UseHAR = true
 	default:
 		return ErrInvalidFunction
@@ -54,13 +63,13 @@ func (c *Client) callSimpleFunction(req *nlibshared.PayloadCallFunctionRequest) 
 			Response: ErrFunctionNotFound,
 		}
 	}
-	f, ok := raw.(nlibshared.SimpleFunction)
+	f, ok := raw.(SimpleFunction)
 	if !ok {
 		return &nlibshared.PayloadCallFunctionResponse{
 			Response: ErrInvalidFunction,
 		}
 	}
-	var input nlibshared.SimpleFunctionIn
+	var input SimpleFunctionIn
 	if err := utils.DecodeStruct(req.Request, &input); err != nil {
 		return &nlibshared.PayloadCallFunctionResponse{
 			Response: err.Error(),
@@ -76,23 +85,23 @@ func (c *Client) callHARFunction(req *nlibshared.PayloadCallFunctionRequest) *nl
 	raw, ok := c.registeredFunctions.Load(req.Name)
 	if !ok {
 		return &nlibshared.PayloadCallFunctionResponse{
-			Response: nlibshared.HARFunctionOut{
+			Response: HARFunctionOut{
 				Status: http.StatusNotFound,
 			},
 		}
 	}
-	f, ok := raw.(nlibshared.HARFunction)
+	f, ok := raw.(HARFunction)
 	if !ok {
 		return &nlibshared.PayloadCallFunctionResponse{
-			Response: nlibshared.HARFunctionOut{
+			Response: HARFunctionOut{
 				Status: http.StatusInternalServerError,
 			},
 		}
 	}
-	var input nlibshared.HARFunctionIn
+	var input HARFunctionIn
 	if err := utils.DecodeStruct(req.Request, &input); err != nil {
 		return &nlibshared.PayloadCallFunctionResponse{
-			Response: nlibshared.HARFunctionOut{
+			Response: HARFunctionOut{
 				Status: http.StatusInternalServerError,
 			},
 		}

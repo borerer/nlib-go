@@ -18,6 +18,14 @@ func SetAppID(appID string) {
 	sharedClient.AppID = appID
 }
 
+func GetEndpoint() string {
+	return sharedClient.Endpoint
+}
+
+func GetAppID() string {
+	return sharedClient.AppID
+}
+
 func Connect() error {
 	return sharedClient.Connect()
 }

@@ -1,6 +1,9 @@
 package nlibgo
 
 import (
+	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"testing"
 	"time"
@@ -16,6 +19,18 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func get(url string) string {
+	res, err := http.Get(url)
+	if err != nil {
+		panic(err)
+	}
+	buf, err := io.ReadAll(res.Body)
+	if err != nil {
+		panic(err)
+	}
+	return string(buf)
 }
 
 func TestGetKey(t *testing.T) {
@@ -59,13 +74,17 @@ func TestRegisterFunction(t *testing.T) {
 	ch := make(chan bool)
 	err := RegisterFunction("ping", func(in nlibshared.SimpleFunctionIn) nlibshared.SimpleFunctionOut {
 		go func() {
-			time.Sleep(time.Second)
+			time.Sleep(time.Millisecond)
 			ch <- true
 		}()
 		return "pong"
 	})
 	if err != nil {
 		t.Fatal(err)
+	}
+	res := get(fmt.Sprintf("%s/api/app/%s/ping", GetEndpoint(), GetAppID()))
+	if res != "pong" {
+		t.Fatal("expect res to be pong")
 	}
 	<-ch
 }
