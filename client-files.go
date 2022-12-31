@@ -3,33 +3,50 @@ package nlibgo
 import (
 	"fmt"
 	"io"
+
+	"github.com/borerer/nlib-go/network"
 )
 
-func (c *Client) getFile(filename string) (io.ReadCloser, error) {
-	req, err := c.requestBuilder.GetFile(filename)
+func (c *Client) GetFile(filename string) (io.ReadCloser, error) {
+	req, err := network.NewHTTPRequestBuilder("GET", fmt.Sprintf("%s/api/app/file/get", c.Endpoint)).Query("file", filename).Build()
 	if err != nil {
 		return nil, err
 	}
-	res, err := httpClient.Do(req)
+	res, err := network.HttpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	if !StatusOK(res.StatusCode) {
+	if !network.StatusOK(res.StatusCode) {
 		return nil, fmt.Errorf("status code %d", res.StatusCode)
 	}
 	return res.Body, nil
 }
 
-func (c *Client) putFile(filename string, reader io.Reader) error {
-	req, err := c.requestBuilder.PutFile(filename, reader)
+func (c *Client) SaveFile(filename string, reader io.Reader) error {
+	req, err := network.NewHTTPRequestBuilder("PUT", fmt.Sprintf("%s/api/app/file/save", c.Endpoint)).Query("file", filename).Body(reader).Build()
 	if err != nil {
 		return err
 	}
-	res, err := httpClient.Do(req)
+	res, err := network.HttpClient.Do(req)
 	if err != nil {
 		return err
 	}
-	if !StatusOK(res.StatusCode) {
+	if !network.StatusOK(res.StatusCode) {
+		return fmt.Errorf("status code %d", res.StatusCode)
+	}
+	return nil
+}
+
+func (c *Client) DeleteFile(filename string) error {
+	req, err := network.NewHTTPRequestBuilder("DELETE", fmt.Sprintf("%s/api/app/file/delete", c.Endpoint)).Query("file", filename).Build()
+	if err != nil {
+		return err
+	}
+	res, err := network.HttpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	if !network.StatusOK(res.StatusCode) {
 		return fmt.Errorf("status code %d", res.StatusCode)
 	}
 	return nil

@@ -1,4 +1,4 @@
-package nlibgo
+package utils
 
 func Must(err error) {
 	if err != nil {

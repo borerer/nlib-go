@@ -1,15 +1,15 @@
-package nlibgo
+package network
 
 import (
 	"net/http"
 )
 
 var (
-	httpClient *http.Client
+	HttpClient *http.Client
 )
 
 func init() {
-	httpClient = http.DefaultClient
+	HttpClient = http.DefaultClient
 }
 
 func StatusOK(code int) bool {

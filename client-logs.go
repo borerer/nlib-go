@@ -3,7 +3,37 @@ package nlibgo
 import (
 	"fmt"
 	"log"
+
+	"github.com/borerer/nlib-go/network"
 )
+
+const (
+	LevelDebug = "debug"
+	LevelInfo  = "info"
+	LevelWarn  = "warn"
+	LevelError = "error"
+	LevelFatal = "fatal"
+)
+
+func (c *Client) Debug(message string, args ...interface{}) error {
+	return c.log(LevelDebug, message, args...)
+}
+
+func (c *Client) Info(message string, args ...interface{}) error {
+	return c.log(LevelInfo, message, args...)
+}
+
+func (c *Client) Warn(message string, args ...interface{}) error {
+	return c.log(LevelWarn, message, args...)
+}
+
+func (c *Client) Error(message string, args ...interface{}) error {
+	return c.log(LevelError, message, args...)
+}
+
+func (c *Client) Fatal(message string, args ...interface{}) error {
+	return c.log(LevelFatal, message, args...)
+}
 
 func arrayToMap(args ...interface{}) map[string]interface{} {
 	res := map[string]interface{}{}
@@ -24,15 +54,20 @@ func (c *Client) logToStdout(level string, message string, details interface{}) 
 func (c *Client) log(level string, message string, args ...interface{}) error {
 	details := arrayToMap(args...)
 	c.logToStdout(level, message, details)
-	req, err := c.requestBuilder.AddLogs(level, message, details)
+	body := map[string]interface{}{
+		"level":   level,
+		"message": message,
+		"details": details,
+	}
+	req, err := network.NewHTTPRequestBuilder("POST", fmt.Sprintf("%s/api/app/logs/log", c.Endpoint)).Body(body).Build()
 	if err != nil {
 		return err
 	}
-	res, err := httpClient.Do(req)
+	res, err := network.HttpClient.Do(req)
 	if err != nil {
 		return err
 	}
-	if !StatusOK(res.StatusCode) {
+	if !network.StatusOK(res.StatusCode) {
 		return fmt.Errorf("status code %d", res.StatusCode)
 	}
 	return nil

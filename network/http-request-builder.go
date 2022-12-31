@@ -1,4 +1,4 @@
-package nlibgo
+package network
 
 import (
 	"bytes"
@@ -16,8 +16,11 @@ type HTTPRequestBuilder struct {
 	body    interface{}
 }
 
-func NewHTTPRequestBuilder() *HTTPRequestBuilder {
-	b := &HTTPRequestBuilder{}
+func NewHTTPRequestBuilder(method string, baseURL string) *HTTPRequestBuilder {
+	b := &HTTPRequestBuilder{
+		method:  method,
+		baseURL: baseURL,
+	}
 	b.query = make(url.Values)
 	return b
 }

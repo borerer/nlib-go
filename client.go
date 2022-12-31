@@ -1,105 +1,83 @@
 package nlibgo
 
 import (
-	"encoding/json"
-	"io"
+	"errors"
+	"fmt"
+	"net/url"
 	"sync"
 	"time"
 
-	"github.com/gorilla/websocket"
+	"github.com/borerer/nlib-go/socket"
+	"github.com/borerer/nlib-go/utils"
 )
 
 type Client struct {
 	Endpoint string
 	AppID    string
 
-	requestBuilder      *APIRequestBuilder
+	socket              *socket.Socket
 	registeredFunctions sync.Map
-
-	websocketConnection *websocket.Conn
 }
+
+var (
+	ErrMissingEndpoint = errors.New("missing endpoint")
+	ErrMissingAppID    = errors.New("missing app id")
+)
 
 func NewClient(endpoint string, appID string) *Client {
 	c := &Client{
-		Endpoint:       endpoint,
-		AppID:          appID,
-		requestBuilder: NewRequestBuilder(endpoint, appID),
+		Endpoint: endpoint,
+		AppID:    appID,
 	}
-	go func() {
-		for {
-			err := c.connect()
-			if err != nil {
-				println(err.Error())
-				time.Sleep(time.Second)
-				continue
-			}
-			err = c.listenWebSocketMessages()
-			if err != nil {
-				println(err.Error())
-				time.Sleep(time.Second)
-			}
-		}
-	}()
 	return c
 }
 
-const (
-	Debug = "debug"
-	Info  = "info"
-	Warn  = "warn"
-	Error = "error"
-	Fatal = "fatal"
-)
-
-func (c *Client) Debug(message string, args ...interface{}) error {
-	return c.log(Debug, message, args...)
-}
-
-func (c *Client) Info(message string, args ...interface{}) error {
-	return c.log(Info, message, args...)
-}
-
-func (c *Client) Warn(message string, args ...interface{}) error {
-	return c.log(Warn, message, args...)
-}
-
-func (c *Client) Error(message string, args ...interface{}) error {
-	return c.log(Error, message, args...)
-}
-
-func (c *Client) Fatal(message string, args ...interface{}) error {
-	return c.log(Fatal, message, args...)
-}
-
-func (c *Client) GetFile(filename string) (io.ReadCloser, error) {
-	return c.getFile(filename)
-}
-
-func (c *Client) PutFile(filename string, reader io.Reader) error {
-	return c.putFile(filename, reader)
-}
-
-func (c *Client) GetKey(key string) (string, error) {
-	return c.getKey(key)
-}
-
-func (c *Client) SetKey(key string, value string) error {
-	return c.setKey(key, value)
-}
-
-func (c *Client) GetJSON(key string, res interface{}) error {
-	val, err := c.getKey(key)
+func (c *Client) connectOnce() error {
+	if len(c.Endpoint) == 0 {
+		return ErrMissingEndpoint
+	}
+	if len(c.AppID) == 0 {
+		return ErrMissingAppID
+	}
+	u, err := url.Parse(c.Endpoint)
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal([]byte(val), res)
-	if err != nil {
+	if u.Scheme == "https" {
+		u.Scheme = "wss"
+	} else {
+		u.Scheme = "ws"
+	}
+	u.Path = fmt.Sprintf("/api/app/%s/ws", c.AppID)
+	c.socket = socket.NewSocket(u.String())
+	c.socket.SetRequestHandler(c.requestHandler)
+	if err = c.socket.Connect(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (c *Client) RegisterFunction(funcName string, f NLIBFunc, opts ...RegisterFunctionOptions) error {
-	c.registeredFunctions.Store(funcName, f)
+func (c *Client) Connect() error {
+	if err := c.connectOnce(); err != nil {
+		return err
+	}
+	skipOnce := true
+	go func() {
+		for {
+			if skipOnce {
+				skipOnce = false
+			} else {
+				if err := c.connectOnce(); err != nil {
+					utils.LogError(err)
+					time.Sleep(time.Second)
+					continue
+				}
+			}
+			if err := c.socket.ListenWebSocketMessages(); err != nil {
+				utils.LogError(err)
+				time.Sleep(time.Second)
+			}
+		}
+	}()
 	return nil
 }

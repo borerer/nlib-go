@@ -1,3 +1,5 @@
+github.com/borerer/nlib-shared/go v0.0.0-20221231150715-40b729a586d4 h1:lSmgpb0dYtlxnm5ibtFBdNSk3saBVIFxkOsTW56fuN4=
+github.com/borerer/nlib-shared/go v0.0.0-20221231150715-40b729a586d4/go.mod h1:Tiz/Dc3ncB5B3Xfan/VvgOSBUMfpJGMpDfA2z7IxcnY=
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
 github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWmnc=
