@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
@@ -70,7 +71,7 @@ func TestSetKey(t *testing.T) {
 // 	}
 // }
 
-func TestRegisterFunction(t *testing.T) {
+func TestRegisterSimpleFunction(t *testing.T) {
 	ch := make(chan bool)
 	err := RegisterFunction("ping", func(in nlibshared.SimpleFunctionIn) nlibshared.SimpleFunctionOut {
 		go func() {
@@ -85,6 +86,54 @@ func TestRegisterFunction(t *testing.T) {
 	res := get(fmt.Sprintf("%s/api/app/%s/ping", GetEndpoint(), GetAppID()))
 	if res != "pong" {
 		t.Fatal("expect res to be pong")
+	}
+	<-ch
+}
+
+func TestRegisterSimpleFunctionWithParams(t *testing.T) {
+	ch := make(chan bool)
+	err := RegisterFunction("add", func(in nlibshared.SimpleFunctionIn) nlibshared.SimpleFunctionOut {
+		sa := in["a"].(string)
+		sb := in["b"].(string)
+		a, _ := strconv.Atoi(sa)
+		b, _ := strconv.Atoi(sb)
+		go func() {
+			time.Sleep(time.Millisecond)
+			ch <- true
+		}()
+		return a + b
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := get(fmt.Sprintf("%s/api/app/%s/add?a=3&b=4", GetEndpoint(), GetAppID()))
+	if res != "7" {
+		t.Fatal("expect res to be 7, but got:", res)
+	}
+	<-ch
+}
+
+func TestRegisterHARFunction(t *testing.T) {
+	ch := make(chan bool)
+	err := RegisterFunction("summary", func(in nlibshared.HARFunctionIn) nlibshared.HARFunctionOut {
+		res := in.Method + " " + in.URL
+		go func() {
+			time.Sleep(time.Millisecond)
+			ch <- true
+		}()
+		return nlibshared.HARFunctionOut{
+			Status: http.StatusOK,
+			Content: nlibshared.Content{
+				Text: &res,
+			},
+		}
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := get(fmt.Sprintf("%s/api/app/%s/summary", GetEndpoint(), GetAppID()))
+	if res != "GET /api/app/nlib-go/summary" {
+		t.Fatal("expect res to be GET, but got:", res)
 	}
 	<-ch
 }
