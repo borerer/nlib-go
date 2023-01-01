@@ -47,8 +47,12 @@ func arrayToMap(args ...interface{}) map[string]interface{} {
 	return res
 }
 
-func (c *Client) logToStdout(level string, message string, details interface{}) {
-	log.Println(level, message, details)
+func (c *Client) logToStdout(level string, message string, details map[string]interface{}) {
+	if len(details) > 0 {
+		log.Printf("[%s] %s %+v", level, message, details)
+	} else {
+		log.Printf("[%s] %s", level, message)
+	}
 }
 
 func (c *Client) log(level string, message string, args ...interface{}) error {
