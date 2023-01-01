@@ -58,6 +58,7 @@ func (c *Client) logToStdout(level string, message string, details map[string]in
 func (c *Client) log(level string, message string, args ...interface{}) error {
 	details := arrayToMap(args...)
 	c.logToStdout(level, message, details)
+	details["app_id"] = c.AppID
 	body := map[string]interface{}{
 		"level":   level,
 		"message": message,
