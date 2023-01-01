@@ -2,37 +2,31 @@ package nlibgo
 
 import (
 	"fmt"
-	"log"
 
+	"github.com/borerer/nlib-go/logs"
 	"github.com/borerer/nlib-go/network"
-)
-
-const (
-	LevelDebug = "debug"
-	LevelInfo  = "info"
-	LevelWarn  = "warn"
-	LevelError = "error"
-	LevelFatal = "fatal"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func (c *Client) Debug(message string, args ...interface{}) error {
-	return c.log(LevelDebug, message, args...)
+	return c.log(zap.DebugLevel, message, args...)
 }
 
 func (c *Client) Info(message string, args ...interface{}) error {
-	return c.log(LevelInfo, message, args...)
+	return c.log(zap.InfoLevel, message, args...)
 }
 
 func (c *Client) Warn(message string, args ...interface{}) error {
-	return c.log(LevelWarn, message, args...)
+	return c.log(zap.WarnLevel, message, args...)
 }
 
 func (c *Client) Error(message string, args ...interface{}) error {
-	return c.log(LevelError, message, args...)
+	return c.log(zap.ErrorLevel, message, args...)
 }
 
 func (c *Client) Fatal(message string, args ...interface{}) error {
-	return c.log(LevelFatal, message, args...)
+	return c.log(zap.FatalLevel, message, args...)
 }
 
 func arrayToMap(args ...interface{}) map[string]interface{} {
@@ -47,20 +41,20 @@ func arrayToMap(args ...interface{}) map[string]interface{} {
 	return res
 }
 
-func (c *Client) logToStdout(level string, message string, details map[string]interface{}) {
-	if len(details) > 0 {
-		log.Printf("[%s] %s %+v", level, message, details)
-	} else {
-		log.Printf("[%s] %s", level, message)
+func (c *Client) logToStdout(level zapcore.Level, message string, details map[string]interface{}) {
+	var fields []zapcore.Field
+	for k, v := range details {
+		fields = append(fields, zap.Any(k, v))
 	}
+	logs.GetZapLogger().Log(level, message, fields...)
 }
 
-func (c *Client) log(level string, message string, args ...interface{}) error {
+func (c *Client) log(level zapcore.Level, message string, args ...interface{}) error {
 	details := arrayToMap(args...)
 	c.logToStdout(level, message, details)
 	details["app_id"] = c.AppID
 	body := map[string]interface{}{
-		"level":   level,
+		"level":   level.String(),
 		"message": message,
 		"details": details,
 	}
