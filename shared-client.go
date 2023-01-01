@@ -18,6 +18,10 @@ func SetAppID(appID string) {
 	sharedClient.AppID = appID
 }
 
+func SetDebugMode(debugMode bool) {
+	sharedClient.SetDebugMode(debugMode)
+}
+
 func GetEndpoint() string {
 	return sharedClient.Endpoint
 }

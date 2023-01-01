@@ -5,10 +5,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/borerer/nlib-go/utils"
+	"github.com/borerer/nlib-go/logs"
 	nlibshared "github.com/borerer/nlib-shared/go"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"go.uber.org/zap"
 )
 
 const (
@@ -51,6 +52,9 @@ func (s *Socket) SetRequestHandler(handler func(req *nlibshared.WebSocketMessage
 }
 
 func (s *Socket) sendMessage(message *nlibshared.WebSocketMessage) error {
+	logs.Debug("send message", zap.Any("message", message))
+	s.lock.Lock()
+	defer s.lock.Unlock()
 	if err := s.conn.WriteJSON(message); err != nil {
 		return err
 	}
@@ -58,8 +62,6 @@ func (s *Socket) sendMessage(message *nlibshared.WebSocketMessage) error {
 }
 
 func (s *Socket) SendRequest(req *nlibshared.WebSocketMessage) (*nlibshared.WebSocketMessage, error) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
 	if len(req.MessageID) == 0 {
 		req.MessageID = uuid.NewString()
 	}
@@ -83,12 +85,13 @@ func (s *Socket) SendRequest(req *nlibshared.WebSocketMessage) (*nlibshared.WebS
 }
 
 func (s *Socket) onMessage(message *nlibshared.WebSocketMessage) {
+	logs.Debug("receive message", zap.Any("message", message))
 	switch message.Type {
 	case nlibshared.WebSocketMessageTypeRequest:
 		if s.requestHandler != nil {
 			res, err := s.requestHandler(message)
 			if err != nil {
-				utils.LogError(err)
+				logs.Error("error", zap.Error(err))
 				return
 			}
 			if len(res.MessageID) == 0 {
@@ -105,7 +108,7 @@ func (s *Socket) onMessage(message *nlibshared.WebSocketMessage) {
 			}
 			err = s.sendMessage(res)
 			if err != nil {
-				utils.LogError(err)
+				logs.Error("error", zap.Error(err))
 			}
 		}
 	case nlibshared.WebSocketMessageTypeResponse:
@@ -113,15 +116,13 @@ func (s *Socket) onMessage(message *nlibshared.WebSocketMessage) {
 			if ch, ok := chRaw.(chan *nlibshared.WebSocketMessage); ok {
 				ch <- message
 			} else {
-				utils.LogError(errors.New("unexpected channel type"))
+				logs.Error("error", zap.Error(errors.New("unexpected channel type")))
 			}
 		} else {
-			utils.LogError(ErrNoPaired)
-			utils.PrintJSON(message)
+			logs.Error("error", zap.Error(ErrNoPaired), zap.Any("message", message))
 		}
 	default:
-		utils.LogError(ErrInvalidMessage)
-		utils.PrintJSON(message)
+		logs.Error("error", zap.Error(ErrInvalidMessage), zap.Any("message", message))
 	}
 }
 
@@ -139,6 +140,7 @@ func (s *Socket) Connect() error {
 		return nil
 	})
 	s.lock.Unlock()
+	logs.Debug("socket connected")
 	return nil
 }
 

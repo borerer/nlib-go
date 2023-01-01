@@ -3,8 +3,10 @@ package nlibgo
 import (
 	"errors"
 
+	"github.com/borerer/nlib-go/logs"
 	"github.com/borerer/nlib-go/utils"
 	nlibshared "github.com/borerer/nlib-shared/go"
+	"go.uber.org/zap"
 )
 
 var (
@@ -24,8 +26,7 @@ func (c *Client) requestHandler(req *nlibshared.WebSocketMessage) (*nlibshared.W
 			Payload: res,
 		}, nil
 	default:
-		utils.LogError(ErrUnknownRequestType)
-		utils.PrintJSON(req)
+		logs.Error("unknown request type", zap.Error(ErrUnknownRequestType), zap.Any("req", req))
 		return nil, ErrUnknownRequestType
 	}
 }

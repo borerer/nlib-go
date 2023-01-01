@@ -7,13 +7,15 @@ import (
 	"sync"
 	"time"
 
+	"github.com/borerer/nlib-go/logs"
 	"github.com/borerer/nlib-go/socket"
-	"github.com/borerer/nlib-go/utils"
+	"go.uber.org/zap"
 )
 
 type Client struct {
-	Endpoint string
-	AppID    string
+	Endpoint  string
+	AppID     string
+	DebugMode bool
 
 	socket              *socket.Socket
 	registeredFunctions sync.Map
@@ -26,10 +28,21 @@ var (
 
 func NewClient(endpoint string, appID string) *Client {
 	c := &Client{
-		Endpoint: endpoint,
-		AppID:    appID,
+		Endpoint:  endpoint,
+		AppID:     appID,
+		DebugMode: false,
 	}
 	return c
+}
+
+func (c *Client) SetDebugMode(debugMode bool) {
+	if debugMode {
+		c.DebugMode = true
+		logs.SetLevel(zap.DebugLevel)
+	} else {
+		c.DebugMode = false
+		logs.SetLevel(zap.InfoLevel)
+	}
 }
 
 func (c *Client) connectOnce() error {
@@ -68,13 +81,13 @@ func (c *Client) Connect() error {
 				skipOnce = false
 			} else {
 				if err := c.connectOnce(); err != nil {
-					utils.LogError(err)
+					logs.Error("error", zap.Error(err))
 					time.Sleep(time.Second)
 					continue
 				}
 			}
 			if err := c.socket.ListenWebSocketMessages(); err != nil {
-				utils.LogError(err)
+				logs.Error("error", zap.Error(err))
 				time.Sleep(time.Second)
 			}
 		}

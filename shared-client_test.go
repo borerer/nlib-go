@@ -14,8 +14,9 @@ import (
 
 func init() {
 	SetEndpoint(os.Getenv("NLIB_SERVER"))
-	// SetEndpoint("https://nlib.home.iloahz.com")
+	// SetEndpoint(os.Getenv("NLIB_SERVER_DEV"))
 	SetAppID("nlib-go")
+	SetDebugMode(true)
 	err := Connect()
 	if err != nil {
 		panic(err)
