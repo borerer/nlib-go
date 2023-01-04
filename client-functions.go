@@ -57,10 +57,19 @@ func (c *Client) callFunction(req *nlibshared.PayloadCallFunctionRequest) *nlibs
 			Response: *har.Error(ErrInvalidFunctionType),
 		}
 	}
-	output, err := f(&req.Request)
+	var output *nlibshared.Response
+	var err error
+	panicError := Safe(func() {
+		output, err = f(&req.Request)
+	})
 	if err != nil {
 		return &nlibshared.PayloadCallFunctionResponse{
-			Response: *har.Error(ErrInvalidFunctionType),
+			Response: *har.Error(err),
+		}
+	}
+	if panicError != nil {
+		return &nlibshared.PayloadCallFunctionResponse{
+			Response: *har.Error(panicError),
 		}
 	}
 	return &nlibshared.PayloadCallFunctionResponse{

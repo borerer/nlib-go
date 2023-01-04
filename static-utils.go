@@ -1,6 +1,7 @@
 package nlibgo
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -16,4 +17,15 @@ func Must(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func Safe(f func()) (err error) {
+	defer func() {
+		t := recover()
+		if t != nil {
+			err = fmt.Errorf("%+v", t)
+		}
+	}()
+	f()
+	return
 }
