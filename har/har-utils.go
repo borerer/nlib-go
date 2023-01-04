@@ -20,6 +20,10 @@ func NewResponse(statusCode int, content string, contentType string) *Response {
 	return res
 }
 
+var Err404 = NewResponse(http.StatusNotFound, http.StatusText(http.StatusNotFound), "")
+var Err405 = NewResponse(http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed), "")
+var Err500 = NewResponse(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError), "")
+
 func Text(content string) *Response {
 	return NewResponse(http.StatusOK, content, ContentTypeTextPlain)
 }
