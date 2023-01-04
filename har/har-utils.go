@@ -1,6 +1,9 @@
 package har
 
-import "net/http"
+import (
+	"encoding/json"
+	"net/http"
+)
 
 const (
 	ContentTypeTextPlain       = "text/plain"
@@ -24,12 +27,16 @@ var Err404 = NewResponse(http.StatusNotFound, http.StatusText(http.StatusNotFoun
 var Err405 = NewResponse(http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed), "")
 var Err500 = NewResponse(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError), "")
 
-func Text(content string) *Response {
-	return NewResponse(http.StatusOK, content, ContentTypeTextPlain)
+func Text(s string) *Response {
+	return NewResponse(http.StatusOK, s, ContentTypeTextPlain)
 }
 
-func JSON(content string) *Response {
-	return NewResponse(http.StatusOK, content, ContentTypeApplicationJSON)
+func JSON(v interface{}) *Response {
+	buf, err := json.Marshal(v)
+	if err != nil {
+		return Error(err)
+	}
+	return NewResponse(http.StatusOK, string(buf), ContentTypeApplicationJSON)
 }
 
 func Error(err error) *Response {
