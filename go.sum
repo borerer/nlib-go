@@ -1,5 +1,11 @@
 github.com/borerer/nlib-shared/go v0.0.0-20221231150715-40b729a586d4 h1:lSmgpb0dYtlxnm5ibtFBdNSk3saBVIFxkOsTW56fuN4=
 github.com/borerer/nlib-shared/go v0.0.0-20221231150715-40b729a586d4/go.mod h1:Tiz/Dc3ncB5B3Xfan/VvgOSBUMfpJGMpDfA2z7IxcnY=
+github.com/borerer/nlib-shared/go v0.0.0-20230104134258-314069401c42 h1:VRAm43hShRCZJdTz1Xis0ZLf17Uo3v8KLSrI65OwddE=
+github.com/borerer/nlib-shared/go v0.0.0-20230104134258-314069401c42/go.mod h1:Tiz/Dc3ncB5B3Xfan/VvgOSBUMfpJGMpDfA2z7IxcnY=
+github.com/borerer/nlib-shared/go v0.0.0-20230104135144-92366acb84cd h1:C4jreoXcDQdkXrA/YGeeJ7/m4VWJcmJyXDJyBqI5RO0=
+github.com/borerer/nlib-shared/go v0.0.0-20230104135144-92366acb84cd/go.mod h1:Tiz/Dc3ncB5B3Xfan/VvgOSBUMfpJGMpDfA2z7IxcnY=
+github.com/borerer/nlib-shared/go v0.0.0-20230104135517-93c1b787066e h1:mGS3ZTKZceHkTHCCOO+hP5XUJ8QdjxjVX9eMHYCtBmI=
+github.com/borerer/nlib-shared/go v0.0.0-20230104135517-93c1b787066e/go.mod h1:Tiz/Dc3ncB5B3Xfan/VvgOSBUMfpJGMpDfA2z7IxcnY=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=

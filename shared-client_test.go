@@ -5,16 +5,17 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strconv"
 	"testing"
 	"time"
 
-	nlibshared "github.com/borerer/nlib-shared/go"
+	"github.com/borerer/nlib-go/har"
+	"github.com/borerer/nlib-go/logs"
+	"go.uber.org/zap"
 )
 
 func init() {
-	SetEndpoint(os.Getenv("NLIB_SERVER"))
-	// SetEndpoint(os.Getenv("NLIB_SERVER_DEV"))
+	// SetEndpoint(os.Getenv("NLIB_SERVER"))
+	SetEndpoint(os.Getenv("NLIB_SERVER_DEV"))
 	SetAppID("nlib-go")
 	SetDebugMode(true)
 	err := Connect()
@@ -23,7 +24,7 @@ func init() {
 	}
 }
 
-func get(url string) string {
+func get(url string) (int, string, map[string][]string) {
 	res, err := http.Get(url)
 	if err != nil {
 		panic(err)
@@ -32,7 +33,10 @@ func get(url string) string {
 	if err != nil {
 		panic(err)
 	}
-	return string(buf)
+	code := res.StatusCode
+	content := string(buf)
+	headers := res.Header
+	return code, content, headers
 }
 
 func TestGetKey(t *testing.T) {
@@ -72,69 +76,71 @@ func TestSetKey(t *testing.T) {
 // 	}
 // }
 
-func TestRegisterSimpleFunction(t *testing.T) {
-	ch := make(chan bool)
-	err := RegisterFunction("ping", func(in nlibshared.SimpleFunctionIn) nlibshared.SimpleFunctionOut {
-		go func() {
-			time.Sleep(time.Millisecond)
-			ch <- true
-		}()
-		return "pong"
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	res := get(fmt.Sprintf("%s/api/app/%s/ping", GetEndpoint(), GetAppID()))
-	if res != "pong" {
-		t.Fatal("expect res to be pong")
-	}
-	<-ch
-}
+// func TestRegisterSimpleFunction(t *testing.T) {
+// 	ch := make(chan bool)
+// 	err := RegisterFunction("ping", func(in nlibshared.SimpleFunctionIn) nlibshared.SimpleFunctionOut {
+// 		go func() {
+// 			time.Sleep(time.Millisecond)
+// 			ch <- true
+// 		}()
+// 		return "pong"
+// 	})
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	res := get(fmt.Sprintf("%s/api/app/%s/ping", GetEndpoint(), GetAppID()))
+// 	if res != "pong" {
+// 		t.Fatal("expect res to be pong")
+// 	}
+// 	<-ch
+// }
 
-func TestRegisterSimpleFunctionWithParams(t *testing.T) {
-	ch := make(chan bool)
-	err := RegisterFunction("add", func(in nlibshared.SimpleFunctionIn) nlibshared.SimpleFunctionOut {
-		sa := in["a"].(string)
-		sb := in["b"].(string)
-		a, _ := strconv.Atoi(sa)
-		b, _ := strconv.Atoi(sb)
-		go func() {
-			time.Sleep(time.Millisecond)
-			ch <- true
-		}()
-		return a + b
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	res := get(fmt.Sprintf("%s/api/app/%s/add?a=3&b=4", GetEndpoint(), GetAppID()))
-	if res != "7" {
-		t.Fatal("expect res to be 7, but got:", res)
-	}
-	<-ch
-}
+// func TestRegisterSimpleFunctionWithParams(t *testing.T) {
+// 	ch := make(chan bool)
+// 	err := RegisterFunction("add", func(in nlibshared.SimpleFunctionIn) nlibshared.SimpleFunctionOut {
+// 		sa := in["a"].(string)
+// 		sb := in["b"].(string)
+// 		a, _ := strconv.Atoi(sa)
+// 		b, _ := strconv.Atoi(sb)
+// 		go func() {
+// 			time.Sleep(time.Millisecond)
+// 			ch <- true
+// 		}()
+// 		return a + b
+// 	})
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	res := get(fmt.Sprintf("%s/api/app/%s/add?a=3&b=4", GetEndpoint(), GetAppID()))
+// 	if res != "7" {
+// 		t.Fatal("expect res to be 7, but got:", res)
+// 	}
+// 	<-ch
+// }
 
-func TestRegisterHARFunction(t *testing.T) {
+func TestRegisterFunction(t *testing.T) {
 	ch := make(chan bool)
-	err := RegisterFunction("summary", func(in nlibshared.HARFunctionIn) nlibshared.HARFunctionOut {
-		res := in.Method + " " + in.URL
+	err := RegisterFunction("summary", func(in *FunctionIn) (*FunctionOut, error) {
+		logs.Info("", zap.Any("in", in))
 		go func() {
 			time.Sleep(time.Millisecond)
 			ch <- true
 		}()
-		return nlibshared.HARFunctionOut{
-			Status: http.StatusOK,
-			Content: nlibshared.Content{
-				Text: &res,
-			},
-		}
+		return har.Text(in.Method + " " + in.URL), nil
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	res := get(fmt.Sprintf("%s/api/app/%s/summary", GetEndpoint(), GetAppID()))
-	if res != "GET /api/app/nlib-go/summary" {
-		t.Fatal("expect res to be GET, but got:", res)
+	code, content, headers := get(fmt.Sprintf("%s/api/app/%s/summary", GetEndpoint(), GetAppID()))
+	if code != 200 {
+		t.Fatal("expect code to be 200, but got:", code)
+	}
+	if content != "GET /api/app/nlib-go/summary" {
+		t.Fatal("expect content to be GET /api/app/nlib-go/summary, but got:", content)
+	}
+	contentType := headers["Content-Type"]
+	if contentType[0] != "text/plain" {
+		t.Fatal("expect content type to be text/plain, but got:", contentType)
 	}
 	<-ch
 }

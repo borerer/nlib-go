@@ -86,6 +86,6 @@ func Fatal(message string, args ...interface{}) error {
 
 // Functions
 
-func RegisterFunction(funcName string, f interface{}) error {
+func RegisterFunction(funcName string, f Function) error {
 	return sharedClient.RegisterFunction(funcName, f)
 }
