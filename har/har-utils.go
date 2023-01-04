@@ -42,3 +42,30 @@ func JSON(v interface{}) *Response {
 func Error(err error) *Response {
 	return NewResponse(http.StatusInternalServerError, err.Error(), ContentTypeTextPlain)
 }
+
+func GetQuery(req *Request, key string) string {
+	for _, query := range req.QueryString {
+		if query.Name == key {
+			return query.Value
+		}
+	}
+	return ""
+}
+
+func GetHeader(req *Request, key string) string {
+	for _, header := range req.Headers {
+		if header.Name == key {
+			return header.Value
+		}
+	}
+	return ""
+}
+
+func GetCookie(req *Request, key string) string {
+	for _, cookie := range req.Cookies {
+		if cookie.Name == key {
+			return cookie.Value
+		}
+	}
+	return ""
+}
