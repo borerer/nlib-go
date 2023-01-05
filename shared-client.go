@@ -66,8 +66,8 @@ func GetFile(filename string) (io.ReadCloser, error) {
 	return sharedClient.GetFile(filename)
 }
 
-func SaveFile(filename string, reader io.Reader) error {
-	return sharedClient.SaveFile(filename, reader)
+func PutFile(filename string, reader io.Reader) error {
+	return sharedClient.PutFile(filename, reader)
 }
 
 func DeleteFile(filename string) error {
@@ -78,8 +78,8 @@ func MustGetFile(filename string) io.ReadCloser {
 	return sharedClient.MustGetFile(filename)
 }
 
-func MustSaveFile(filename string, reader io.Reader) {
-	sharedClient.MustSaveFile(filename, reader)
+func MustPutFile(filename string, reader io.Reader) {
+	sharedClient.MustPutFile(filename, reader)
 }
 
 func MustDeleteFile(filename string) {

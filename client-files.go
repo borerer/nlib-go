@@ -22,8 +22,8 @@ func (c *Client) GetFile(filename string) (io.ReadCloser, error) {
 	return res.Body, nil
 }
 
-func (c *Client) SaveFile(filename string, reader io.Reader) error {
-	req, err := network.NewHTTPRequestBuilder("PUT", fmt.Sprintf("%s/api/app/files/save", c.Endpoint)).Query("file", filename).Body(reader).Build()
+func (c *Client) PutFile(filename string, reader io.Reader) error {
+	req, err := network.NewHTTPRequestBuilder("PUT", fmt.Sprintf("%s/api/app/files/put", c.Endpoint)).Query("file", filename).Body(reader).Build()
 	if err != nil {
 		return err
 	}
@@ -58,8 +58,8 @@ func (c *Client) MustGetFile(filename string) io.ReadCloser {
 	return r
 }
 
-func (c *Client) MustSaveFile(filename string, reader io.Reader) {
-	Must(c.SaveFile(filename, reader))
+func (c *Client) MustPutFile(filename string, reader io.Reader) {
+	Must(c.PutFile(filename, reader))
 }
 
 func (c *Client) MustDeleteFile(filename string) {
