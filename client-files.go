@@ -51,3 +51,17 @@ func (c *Client) DeleteFile(filename string) error {
 	}
 	return nil
 }
+
+func (c *Client) MustGetFile(filename string) io.ReadCloser {
+	r, err := c.GetFile(filename)
+	Must(err)
+	return r
+}
+
+func (c *Client) MustSaveFile(filename string, reader io.Reader) {
+	Must(c.SaveFile(filename, reader))
+}
+
+func (c *Client) MustDeleteFile(filename string) {
+	Must(c.DeleteFile(filename))
+}

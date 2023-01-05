@@ -54,3 +54,17 @@ func (c *Client) SetKey(key string, value string) error {
 	}
 	return nil
 }
+
+func (c *Client) MustGetKey(key string) string {
+	value, err := c.GetKey(key)
+	Must(err)
+	return value
+}
+
+func (c *Client) MustGetJSON(key string, res interface{}) {
+	Must(c.GetJSON(key, res))
+}
+
+func (c *Client) MustSetKey(key string, value string) {
+	Must(c.SetKey(key, value))
+}

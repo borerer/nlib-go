@@ -48,6 +48,18 @@ func SetKey(key string, value string) error {
 	return sharedClient.SetKey(key, value)
 }
 
+func MustGetKey(key string) string {
+	return sharedClient.MustGetKey(key)
+}
+
+func MustGetJSON(key string, res interface{}) {
+	sharedClient.MustGetJSON(key, res)
+}
+
+func MustSetKey(key string, value string) {
+	sharedClient.MustSetKey(key, value)
+}
+
 // Files
 
 func GetFile(filename string) (io.ReadCloser, error) {
@@ -60,6 +72,18 @@ func SaveFile(filename string, reader io.Reader) error {
 
 func DeleteFile(filename string) error {
 	return sharedClient.DeleteFile(filename)
+}
+
+func MustGetFile(filename string) io.ReadCloser {
+	return sharedClient.MustGetFile(filename)
+}
+
+func MustSaveFile(filename string, reader io.Reader) {
+	sharedClient.MustSaveFile(filename, reader)
+}
+
+func MustDeleteFile(filename string) {
+	sharedClient.MustDeleteFile(filename)
 }
 
 // Logs
