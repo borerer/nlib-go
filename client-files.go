@@ -8,7 +8,7 @@ import (
 )
 
 func (c *Client) GetFile(filename string) (io.ReadCloser, error) {
-	req, err := network.NewHTTPRequestBuilder("GET", fmt.Sprintf("%s/api/app/file/get", c.Endpoint)).Query("file", filename).Build()
+	req, err := network.NewHTTPRequestBuilder("GET", fmt.Sprintf("%s/api/app/files/get", c.Endpoint)).Query("file", filename).Build()
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (c *Client) GetFile(filename string) (io.ReadCloser, error) {
 }
 
 func (c *Client) SaveFile(filename string, reader io.Reader) error {
-	req, err := network.NewHTTPRequestBuilder("PUT", fmt.Sprintf("%s/api/app/file/save", c.Endpoint)).Query("file", filename).Body(reader).Build()
+	req, err := network.NewHTTPRequestBuilder("PUT", fmt.Sprintf("%s/api/app/files/save", c.Endpoint)).Query("file", filename).Body(reader).Build()
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func (c *Client) SaveFile(filename string, reader io.Reader) error {
 }
 
 func (c *Client) DeleteFile(filename string) error {
-	req, err := network.NewHTTPRequestBuilder("DELETE", fmt.Sprintf("%s/api/app/file/delete", c.Endpoint)).Query("file", filename).Build()
+	req, err := network.NewHTTPRequestBuilder("DELETE", fmt.Sprintf("%s/api/app/files/delete", c.Endpoint)).Query("file", filename).Build()
 	if err != nil {
 		return err
 	}
