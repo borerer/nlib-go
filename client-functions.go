@@ -49,7 +49,7 @@ func (c *Client) callFunction(req *nlibshared.PayloadCallFunctionRequest) *nlibs
 	f, ok := raw.(func(*nlibshared.Request) *nlibshared.Response)
 	if !ok {
 		return &nlibshared.PayloadCallFunctionResponse{
-			Response: *Error_(ErrInvalidFunctionType),
+			Response: *Err500WithMessage(ErrInvalidFunctionType),
 		}
 	}
 	var output *nlibshared.Response
@@ -58,7 +58,7 @@ func (c *Client) callFunction(req *nlibshared.PayloadCallFunctionRequest) *nlibs
 	})
 	if panicError != nil {
 		return &nlibshared.PayloadCallFunctionResponse{
-			Response: *Error_(panicError),
+			Response: *Err500WithMessage(panicError),
 		}
 	}
 	return &nlibshared.PayloadCallFunctionResponse{
