@@ -27,8 +27,8 @@ var Err404 = NewResponse(http.StatusNotFound, http.StatusText(http.StatusNotFoun
 var Err405 = NewResponse(http.StatusMethodNotAllowed, http.StatusText(http.StatusMethodNotAllowed), "")
 var Err500 = NewResponse(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError), "")
 
-func Err500WithMessage(err error) *Response {
-	return NewResponse(http.StatusInternalServerError, err.Error(), ContentTypeTextPlain)
+func Err500WithMessage(message string) *Response {
+	return NewResponse(http.StatusInternalServerError, message, ContentTypeTextPlain)
 }
 
 func Text(s string) *Response {
@@ -38,7 +38,7 @@ func Text(s string) *Response {
 func JSON(v interface{}) *Response {
 	buf, err := json.Marshal(v)
 	if err != nil {
-		return Err500WithMessage(err)
+		return Err500WithMessage(err.Error())
 	}
 	return NewResponse(http.StatusOK, string(buf), ContentTypeApplicationJSON)
 }
