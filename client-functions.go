@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/borerer/nlib-go/har"
 	"github.com/borerer/nlib-go/utils"
 	nlibshared "github.com/borerer/nlib-shared/go"
 )
@@ -44,13 +43,13 @@ func (c *Client) callFunction(req *nlibshared.PayloadCallFunctionRequest) *nlibs
 	raw, ok := c.registeredFunctions.Load(req.Name)
 	if !ok {
 		return &nlibshared.PayloadCallFunctionResponse{
-			Response: *har.NewResponse(http.StatusNotFound, "not found", har.ContentTypeTextPlain),
+			Response: *NewResponse(http.StatusNotFound, "not found", ContentTypeTextPlain),
 		}
 	}
 	f, ok := raw.(func(*nlibshared.Request) *nlibshared.Response)
 	if !ok {
 		return &nlibshared.PayloadCallFunctionResponse{
-			Response: *har.Error(ErrInvalidFunctionType),
+			Response: *Error_(ErrInvalidFunctionType),
 		}
 	}
 	var output *nlibshared.Response
@@ -59,7 +58,7 @@ func (c *Client) callFunction(req *nlibshared.PayloadCallFunctionRequest) *nlibs
 	})
 	if panicError != nil {
 		return &nlibshared.PayloadCallFunctionResponse{
-			Response: *har.Error(panicError),
+			Response: *Error_(panicError),
 		}
 	}
 	return &nlibshared.PayloadCallFunctionResponse{

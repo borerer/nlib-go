@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/borerer/nlib-go/har"
 	"github.com/borerer/nlib-go/logs"
 	nlibshared "github.com/borerer/nlib-shared/go"
 	"go.uber.org/zap"
@@ -127,7 +126,7 @@ func TestRegisterFunction(t *testing.T) {
 			time.Sleep(time.Millisecond)
 			ch <- true
 		}()
-		return har.Text(req.Method + " " + req.URL)
+		return Text(req.Method + " " + req.URL)
 	})
 	if err != nil {
 		t.Fatal(err)

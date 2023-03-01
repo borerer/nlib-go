@@ -1,4 +1,4 @@
-package har
+package nlibgo
 
 import (
 	"encoding/json"
@@ -34,12 +34,12 @@ func Text(s string) *Response {
 func JSON(v interface{}) *Response {
 	buf, err := json.Marshal(v)
 	if err != nil {
-		return Error(err)
+		return Error_(err)
 	}
 	return NewResponse(http.StatusOK, string(buf), ContentTypeApplicationJSON)
 }
 
-func Error(err error) *Response {
+func Error_(err error) *Response {
 	return NewResponse(http.StatusInternalServerError, err.Error(), ContentTypeTextPlain)
 }
 

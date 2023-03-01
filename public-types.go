@@ -1,4 +1,4 @@
-package har
+package nlibgo
 
 import nlibshared "github.com/borerer/nlib-shared/go"
 
