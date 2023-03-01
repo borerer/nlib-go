@@ -10,12 +10,13 @@ import (
 
 	"github.com/borerer/nlib-go/har"
 	"github.com/borerer/nlib-go/logs"
+	nlibshared "github.com/borerer/nlib-shared/go"
 	"go.uber.org/zap"
 )
 
 func init() {
-	// SetEndpoint(os.Getenv("NLIB_SERVER"))
-	SetEndpoint(os.Getenv("NLIB_SERVER_DEV"))
+	SetEndpoint(os.Getenv("NLIB_SERVER"))
+	// SetEndpoint(os.Getenv("NLIB_SERVER_DEV"))
 	SetAppID("nlib-go")
 	SetDebugMode(true)
 	err := Connect()
@@ -120,13 +121,13 @@ func TestSetKey(t *testing.T) {
 
 func TestRegisterFunction(t *testing.T) {
 	ch := make(chan bool)
-	err := RegisterFunction("summary", func(in *FunctionIn) (*FunctionOut, error) {
-		logs.Info("", zap.Any("in", in))
+	err := RegisterFunction("summary", func(req *nlibshared.Request) *nlibshared.Response {
+		logs.Info("", zap.Any("req", req))
 		go func() {
 			time.Sleep(time.Millisecond)
 			ch <- true
 		}()
-		return har.Text(in.Method + " " + in.URL), nil
+		return har.Text(req.Method + " " + req.URL)
 	})
 	if err != nil {
 		t.Fatal(err)

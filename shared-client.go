@@ -1,6 +1,10 @@
 package nlibgo
 
-import "io"
+import (
+	"io"
+
+	nlibshared "github.com/borerer/nlib-shared/go"
+)
 
 var (
 	sharedClient *Client
@@ -110,6 +114,6 @@ func Fatal(message string, args ...interface{}) error {
 
 // Functions
 
-func RegisterFunction(funcName string, f Function) error {
+func RegisterFunction(funcName string, f func(*nlibshared.Request) *nlibshared.Response) error {
 	return sharedClient.RegisterFunction(funcName, f)
 }

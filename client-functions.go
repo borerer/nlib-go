@@ -14,11 +14,7 @@ var (
 	ErrFunctionNotFound    = errors.New("function not found")
 )
 
-type FunctionIn = har.Request
-type FunctionOut = har.Response
-type Function = func(*FunctionIn) (*FunctionOut, error)
-
-func (c *Client) RegisterFunction(name string, f Function) error {
+func (c *Client) RegisterFunction(name string, f func(*nlibshared.Request) *nlibshared.Response) error {
 	req := &nlibshared.PayloadRegisterFunctionRequest{
 		Name: name,
 	}
@@ -51,22 +47,16 @@ func (c *Client) callFunction(req *nlibshared.PayloadCallFunctionRequest) *nlibs
 			Response: *har.NewResponse(http.StatusNotFound, "not found", har.ContentTypeTextPlain),
 		}
 	}
-	f, ok := raw.(Function)
+	f, ok := raw.(func(*nlibshared.Request) *nlibshared.Response)
 	if !ok {
 		return &nlibshared.PayloadCallFunctionResponse{
 			Response: *har.Error(ErrInvalidFunctionType),
 		}
 	}
 	var output *nlibshared.Response
-	var err error
 	panicError := Safe(func() {
-		output, err = f(&req.Request)
+		output = f(&req.Request)
 	})
-	if err != nil {
-		return &nlibshared.PayloadCallFunctionResponse{
-			Response: *har.Error(err),
-		}
-	}
 	if panicError != nil {
 		return &nlibshared.PayloadCallFunctionResponse{
 			Response: *har.Error(panicError),
