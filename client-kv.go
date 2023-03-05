@@ -18,7 +18,7 @@ func (c *Client) GetKey(key string) (string, error) {
 		return "", err
 	}
 	if !network.StatusOK(res.StatusCode) {
-		return "", fmt.Errorf("status code %d", res.StatusCode)
+		return "", fmt.Errorf("http error, path: %s, status code %d", "/api/app/kv/get", res.StatusCode)
 	}
 	defer res.Body.Close()
 	buf, err := io.ReadAll(res.Body)

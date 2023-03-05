@@ -17,7 +17,7 @@ func (c *Client) GetFile(filename string) (io.ReadCloser, error) {
 		return nil, err
 	}
 	if !network.StatusOK(res.StatusCode) {
-		return nil, fmt.Errorf("status code %d", res.StatusCode)
+		return nil, fmt.Errorf("http error, path: %s, status code %d", "/api/app/files/get", res.StatusCode)
 	}
 	return res.Body, nil
 }
@@ -32,7 +32,7 @@ func (c *Client) PutFile(filename string, reader io.Reader) error {
 		return err
 	}
 	if !network.StatusOK(res.StatusCode) {
-		return fmt.Errorf("status code %d", res.StatusCode)
+		return fmt.Errorf("http error, path: %s, status code %d", "/api/app/files/put", res.StatusCode)
 	}
 	return nil
 }
@@ -47,7 +47,7 @@ func (c *Client) DeleteFile(filename string) error {
 		return err
 	}
 	if !network.StatusOK(res.StatusCode) {
-		return fmt.Errorf("status code %d", res.StatusCode)
+		return fmt.Errorf("http error, path: %s, status code %d", "/api/app/files/delete", res.StatusCode)
 	}
 	return nil
 }

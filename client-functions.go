@@ -2,6 +2,7 @@ package nlibgo
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/borerer/nlib-go/utils"
@@ -43,7 +44,7 @@ func (c *Client) callFunction(req *nlibshared.PayloadCallFunctionRequest) *nlibs
 	raw, ok := c.registeredFunctions.Load(req.Name)
 	if !ok {
 		return &nlibshared.PayloadCallFunctionResponse{
-			Response: *NewResponse(http.StatusNotFound, "not found", ContentTypeTextPlain),
+			Response: *NewResponse(http.StatusNotFound, fmt.Sprintf("function not found, app id: %s, function: %s", c.AppID, req.Name), ContentTypeTextPlain),
 		}
 	}
 	f, ok := raw.(func(*nlibshared.Request) *nlibshared.Response)

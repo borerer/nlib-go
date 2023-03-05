@@ -46,7 +46,7 @@ func (c *Client) logToStdout(level zapcore.Level, message string, details map[st
 	for k, v := range details {
 		fields = append(fields, zap.Any(k, v))
 	}
-	logs.GetZapLogger().Log(level, message, fields...)
+	logs.GetZapLoggerForApp().Log(level, message, fields...)
 }
 
 func (c *Client) log(level zapcore.Level, message string, args ...interface{}) error {
@@ -67,7 +67,7 @@ func (c *Client) log(level zapcore.Level, message string, args ...interface{}) e
 		return err
 	}
 	if !network.StatusOK(res.StatusCode) {
-		return fmt.Errorf("status code %d", res.StatusCode)
+		return fmt.Errorf("http error, path: %s, status code %d", req.URL.Path, res.StatusCode)
 	}
 	return nil
 }
