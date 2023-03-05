@@ -3,6 +3,7 @@ package nlibgo
 import (
 	"io"
 
+	"github.com/borerer/nlib-go/logs"
 	nlibshared "github.com/borerer/nlib-shared/go"
 )
 
@@ -24,6 +25,10 @@ func SetAppID(appID string) {
 
 func SetDebugMode(debugMode bool) {
 	sharedClient.SetDebugMode(debugMode)
+}
+
+func SetLogsCallerSkip(skip int) {
+	logs.SetCallerSkipForApp(skip)
 }
 
 func GetEndpoint() string {

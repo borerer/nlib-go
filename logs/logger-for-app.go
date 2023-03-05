@@ -15,7 +15,7 @@ func init() {
 	atomForApp = zap.NewAtomicLevel()
 	configForApp = zap.NewDevelopmentConfig()
 	configForApp.Level = atomForApp
-	loggerForApp, err = configForApp.Build(zap.AddCallerSkip(2))
+	loggerForApp, err = configForApp.Build(zap.AddCallerSkip(3))
 	if err != nil {
 		panic(err)
 	}
