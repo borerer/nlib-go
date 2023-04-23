@@ -2,6 +2,7 @@ package nlibgo
 
 import (
 	"fmt"
+	"runtime"
 
 	"github.com/borerer/nlib-go/logs"
 	"github.com/borerer/nlib-go/network"
@@ -49,10 +50,26 @@ func (c *Client) logToStdout(level zapcore.Level, message string, details map[st
 	logs.GetZapLoggerForApp().Log(level, message, fields...)
 }
 
+func getStackTrace(skip int) string {
+	pc := make([]uintptr, 100)
+	n := runtime.Callers(skip+2, pc)
+	res := ""
+	frames := runtime.CallersFrames(pc[:n])
+	for {
+		frame, more := frames.Next()
+		res = res + fmt.Sprintf("%s:%d\n", frame.File, frame.Line)
+		if !more {
+			break
+		}
+	}
+	return res
+}
+
 func (c *Client) log(level zapcore.Level, message string, args ...interface{}) error {
 	details := arrayToMap(args...)
 	c.logToStdout(level, message, details)
 	details["app_id"] = c.AppID
+	details["stacktrace"] = getStackTrace(c.LogsSkip + 1)
 	body := map[string]interface{}{
 		"level":   level.String(),
 		"message": message,

@@ -12,7 +12,10 @@ var (
 )
 
 func init() {
-	sharedClient = &Client{}
+	sharedClient = &Client{
+		DebugMode: false,
+		LogsSkip:  2,
+	}
 }
 
 func SetEndpoint(endpoint string) {

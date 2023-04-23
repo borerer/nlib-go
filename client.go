@@ -16,6 +16,7 @@ type Client struct {
 	Endpoint  string
 	AppID     string
 	DebugMode bool
+	LogsSkip  int
 
 	socket              *socket.Socket
 	registeredFunctions sync.Map
@@ -31,6 +32,7 @@ func NewClient(endpoint string, appID string) *Client {
 		Endpoint:  endpoint,
 		AppID:     appID,
 		DebugMode: false,
+		LogsSkip:  1,
 	}
 	return c
 }
